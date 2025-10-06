@@ -1,0 +1,8 @@
+Eager Loading
+Jednoczesne załadowanie wszystkich niezbędnych, powiązanych danych z bazy, poprzez stosowanie Include().
+
+Operacja projekcji typu SELECT
+Stosowanie klauzuli SELECT w celu wyodrębnienia tylko potrzebnych danych, zamiast pobierania całych encji i powiazanych z nimi relacji.
+
+Filtracja po stronie serwera DB
+Wymuszenie filtracji danych przed pobraniem ich do apikacji, innymi słowy stosowanie klauzul Where, Select, GroupBy oraz OrderBy przed klauzulą ToList().
