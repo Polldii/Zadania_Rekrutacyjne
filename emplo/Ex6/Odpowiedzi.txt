@@ -6,3 +6,11 @@ Stosowanie klauzuli SELECT w celu wyodrębnienia tylko potrzebnych danych, zamia
 
 Filtracja po stronie serwera DB
 Wymuszenie filtracji danych przed pobraniem ich do apikacji, innymi słowy stosowanie klauzul Where, Select, GroupBy oraz OrderBy przed klauzulą ToList().
+
+Indeksowanie
+Utworzenie indeksów na  najczęściej wyszukiwanych danych.
+
+Paginacja
+Dzielenia długiej treści na mniejsze, ponumerowane strony.(Skip() i Take()))
+
+Prekompilacja zapytań (Compiled Queries).
