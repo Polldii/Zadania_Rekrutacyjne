@@ -24,7 +24,7 @@ public class Program
       
         if (!int.TryParse(args[3], out intervalInSecounds)) 
         {
-            intervalInSecounds = 10;
+            intervalInSecounds = 5;
         }
 
         var folderSynchronizer = new FolderSynchronizer(sourcePath, destinationPath, logPath);

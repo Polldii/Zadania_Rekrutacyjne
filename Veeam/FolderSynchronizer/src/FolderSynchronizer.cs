@@ -17,6 +17,7 @@ public class FolderSynchronizer
     private LoggerService _logger = new();
 
     public IList sourceFiles;
+    public IList sourceDirectories;
     public IList destinationFiles;
     public IList destinationDirectories;
 
@@ -85,9 +86,10 @@ public class FolderSynchronizer
             Directory.CreateDirectory(DestinationPath);
         }
 
-        _logger.LogInfo($"{Environment.NewLine} Source path: {SourcePath} {Environment.NewLine} Destination path: {DestinationPath} {Environment.NewLine} Log path: {LogPath} ", LogPath);
+        _logger.LogInfo($"{Environment.NewLine} Source path: {SourcePath} {Environment.NewLine} Destination path: {DestinationPath} {Environment.NewLine} Log path: {LogPath} {Environment.NewLine}", LogPath);
 
         sourceFiles = Directory.GetFiles(SourcePath, "*", SearchOption.AllDirectories);
+        sourceDirectories = Directory.GetDirectories(SourcePath, "*", SearchOption.AllDirectories);
         destinationFiles = Directory.GetFiles(DestinationPath, "*", SearchOption.AllDirectories);
         destinationDirectories = Directory.GetDirectories(DestinationPath, "*", SearchOption.AllDirectories);
 
@@ -98,23 +100,28 @@ public class FolderSynchronizer
     {
         _logger.LogInfo($"{Environment.NewLine}****************************{Environment.NewLine}Starting folder synchronization...", LogPath);
 
+        // Copy and create directories from source to destination
+        foreach (string directorie in Directory.GetDirectories(SourcePath, "*", SearchOption.AllDirectories))
+        {
+            string relativePath = Path.GetRelativePath(SourcePath, directorie);
+            string destinationDirectoriePath = Path.Combine(DestinationPath, relativePath);
+            if (!Directory.Exists(destinationDirectoriePath))
+            {
+                CoppyDirectorie(destinationDirectoriePath);
+            }
+        }
+
         // Copy and update files from source to destination
         foreach (string file in sourceFiles)
         {
             string relativePath = Path.GetRelativePath(SourcePath, file);
             string destinationFilePath = Path.Combine(DestinationPath, relativePath);
-            string destinationDir = Path.GetDirectoryName(destinationFilePath);
-
-            if (!Directory.Exists(destinationDir))
-            {
-                Directory.CreateDirectory(destinationDir);
-            }
 
             if (!File.Exists(destinationFilePath))
             {
                 CoppyFile(file, destinationFilePath, null);
             }
-            else if (_fileComparator.AreFilesIdentical(file, destinationFilePath))
+            else if (!_fileComparator.AreFilesIdentical(file, destinationFilePath))
             {
                 UpdateFile(file, destinationFilePath);
             }
@@ -139,7 +146,10 @@ public class FolderSynchronizer
             // Delete empty directories in destination
             foreach (string directorie in destinationDirectories)
             {
-                if (Directory.GetFiles(directorie).Length == 0 && Directory.GetDirectories(directorie).Length == 0)
+                string relativePath = Path.GetRelativePath(DestinationPath, directorie);
+                string sourceDirectoriePath = Path.Combine(SourcePath, relativePath);
+
+                if (!Directory.Exists(sourceDirectoriePath) && Directory.GetFiles(directorie).Length == 0 && Directory.GetDirectories(directorie).Length == 0)
                 {
                     DeleteDirectorie(directorie);
                 }
@@ -154,6 +164,12 @@ public class FolderSynchronizer
         _logger.LogInfo(message != null? message : $"Copying file: {destinationPath}", LogPath);
 
         File.Copy(sourcefile, destinationPath, true);
+    }
+
+    public void CoppyDirectorie(string destinationPath)
+    {
+        _logger.LogInfo($"Copying directory: {destinationPath}", LogPath);
+        Directory.CreateDirectory(destinationPath);
     }
 
     public void UpdateFile(string sourcefile, string destinationPath)
